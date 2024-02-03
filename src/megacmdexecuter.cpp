@@ -5614,6 +5614,134 @@ bool checkExactlyNArgs(const vector<string> &words, size_t n)
     return true;
 }
 
+const char* errorstring(error e)
+{
+    switch (e)
+    {
+    case API_OK:
+        return "No error";
+    case API_EINTERNAL:
+        return "Internal error";
+    case API_EARGS:
+        return "Invalid argument";
+    case API_EAGAIN:
+        return "Request failed, retrying";
+    case API_ERATELIMIT:
+        return "Rate limit exceeded";
+    case API_EFAILED:
+        return "Transfer failed";
+    case API_ETOOMANY:
+        return "Too many concurrent connections or transfers";
+    case API_ERANGE:
+        return "Out of range";
+    case API_EEXPIRED:
+        return "Expired";
+    case API_ENOENT:
+        return "Not found";
+    case API_ECIRCULAR:
+        return "Circular linkage detected";
+    case API_EACCESS:
+        return "Access denied";
+    case API_EEXIST:
+        return "Already exists";
+    case API_EINCOMPLETE:
+        return "Incomplete";
+    case API_EKEY:
+        return "Invalid key/integrity check failed";
+    case API_ESID:
+        return "Bad session ID";
+    case API_EBLOCKED:
+        return "Blocked";
+    case API_EOVERQUOTA:
+        return "Over quota";
+    case API_ETEMPUNAVAIL:
+        return "Temporarily not available";
+    case API_ETOOMANYCONNECTIONS:
+        return "Connection overflow";
+    case API_EWRITE:
+        return "Write error";
+    case API_EREAD:
+        return "Read error";
+    case API_EAPPKEY:
+        return "Invalid application key";
+    case API_EGOINGOVERQUOTA:
+        return "Not enough quota";
+    case API_EMFAREQUIRED:
+        return "Multi-factor authentication required";
+    case API_EMASTERONLY:
+        return "Access denied for users";
+    case API_EBUSINESSPASTDUE:
+        return "Business account has expired";
+    case API_EPAYWALL:
+        return "Over Disk Quota Paywall";
+    case LOCAL_ENOSPC:
+        return "Insufficient disk space";
+    default:
+        return "Unknown error";
+    }
+}
+
+static void rename_result(NodeHandle, error e)
+{
+    if (e)
+    {
+        cout << "Node move failed (" << errorstring(e) << ")" << endl;
+    }
+}
+
+
+void MegaCmdExecuter::findDuplicates(MegaNode* n, bool deduplicate, std::unordered_map<std::string, std::vector<MegaNode*>>& duplication)
+{    
+    MegaNodeList *children = api->getChildren(n);
+    if(children != nullptr)
+    {
+        for (int i = 0; i < children->size(); i++)
+        {
+            MegaNode *child = children->get(i);
+            if (child->getType() == MegaNode::TYPE_FILE)
+            {
+                if(false == api->isSynced(child))
+                {
+                    OUTSTREAM << "File not synced in local: " << api->getNodePath(child) << endl;
+                    continue;
+                }
+                string fileHash(api->getMD5Hash(child));
+
+                if(fileHash.empty() == true)
+                {
+                    OUTSTREAM << "File not synced in local: " << api->getNodePath(child) << endl;
+                    continue;
+                }
+
+                // Send duplicates to rubbish bin
+                // If a copy already present
+                // if (deduplicate == true    // Auto deduplication requested
+                //     && duplication.find(fileHash) != duplication.end()) // checksum is already present in map
+                // {
+                //     OUTSTREAM << "Deleting: " << api->getNodePath(child) << endl;
+                //     char * nodepath = api->getNodePath(api->getRubbishNode());
+                //     move(child, string(nodepath));
+                //     delete []nodepath;
+                //     // //api->rename(child, api->getRubbishNode();, SYNCDEL_NONE, NodeHandle(), nullptr, false, rename_result);
+                //     // //deleteNode(child, api, getFlag(clflags, "r"), force);
+                //     // doDeleteNode(child, api);
+                //     continue;
+                // }
+
+                // Get checksum
+                // Insert in the map
+                duplication[fileHash].push_back(child);
+                OUTSTREAM << "File name: " << api->getNodePath(child) << endl;
+            }
+            else if (child->getType() == MegaNode::TYPE_FOLDER)
+            {
+                // Recursively walk directories
+                findDuplicates(child, deduplicate, duplication);
+            }
+        }
+    }
+}
+
 void MegaCmdExecuter::executecommand(vector<string> words, map<string, int> *clflags, map<string, string> *cloptions)
 {
     MegaNode* n = NULL;
@@ -10934,6 +11062,48 @@ void MegaCmdExecuter::executecommand(vector<string> words, map<string, int> *clf
             setProxy(urlProxy, username, password, proxyType);
         }
 
+    }
+    else if(words[0] == "findduplication")
+    {
+        if (!api->isFilesystemAvailable())
+        {
+            setCurrentOutCode(MCMD_NOTLOGGEDIN);
+            LOG_err << "Not logged in.";
+            return;
+        }
+
+        std::unordered_map<std::string, std::vector<MegaNode*>> duplication;
+        MegaNode *ncwd = api->getNodeByHandle(cwd);
+
+        if (ncwd != nullptr)
+        {
+            OUTSTREAM << "Current working directory: " << api->getNodePath(ncwd) << endl;
+            findDuplicates(ncwd, false, duplication);
+        }
+        else
+        {
+            LOG_err << "Failed to connect to cloud drive.";
+        }
+
+        bool dupFound = false;
+        for (auto itr : duplication)
+        {
+            if (itr.second.size() > 1)
+            {
+                dupFound = true;
+                OUTSTREAM << "Found duplicates of: " << api->getNodePath(itr.second[0]) << endl;
+                for (auto file : itr.second)
+                {
+                    if (file != nullptr)
+                        OUTSTREAM << "                     \033[1;31m" << api->getNodePath(file) << "\033[0m" << endl;
+                }
+            }
+        }
+
+        if (!dupFound)
+        {
+            OUTSTREAM << "No duplications found" << endl;
+        }
     }
     else
     {

@@ -24,6 +24,8 @@
 #include "megacmdlogger.h"
 #include "megacmdsandbox.h"
 #include "listeners.h"
+#include <unordered_map>
+#include <vector>
 
 namespace megacmd {
 class MegaCmdSandbox;
@@ -213,6 +215,7 @@ public:
 
 
     void cleanSlateTranfers();
+    void findDuplicates(mega::MegaNode* n, bool deduplicate, std::unordered_map<std::string, std::vector<mega::MegaNode*>>& duplication);
 };
 
 }//end namespace

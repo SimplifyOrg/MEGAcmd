@@ -1921,6 +1921,10 @@ const char * getUsageStr(const char *command)
         return "update [--auto=on|off|query]";
     }
 #endif
+    if (!strcmp(command, "findduplication"))
+    {
+        return "findduplication";
+    }
     return "command not found: ";
 }
 
@@ -3010,6 +3014,10 @@ string getHelpStr(const char *command)
         os << " M" << "\t" << "Sets the secondary codepage to M, which is used if the primary can't translate a character." << endl;
     }
 #endif
+    else if (!strcmp(command, "findduplication"))
+    {
+        os << "Finds duplicates of all files and optionally moves them to thrash." << endl;
+    }
     return os.str();
 }
 
@@ -3350,7 +3358,7 @@ void executecommand(char* ptr)
             OUTSTREAM << "Use \"help --upgrade\" to learn about the limitations and obtaining PRO accounts" << endl;
             OUTSTREAM << "Use \"help --paths\" to learn about paths and how to enter them" << endl;
 
-            OUTSTREAM << endl << "Commands:" << endl;
+            OUTSTREAM << endl << "Commands here:" << endl;
 
             printAvailableCommands(getFlag(&clflags,"f"));
             OUTSTREAM << endl << "Verbosity: You can increase the amount of information given by any command by passing \"-v\" (\"-vv\", \"-vvv\", ...)" << endl;

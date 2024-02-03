@@ -115,7 +115,7 @@ static std::vector<std::string> allValidCommands { "login", "signup", "confirm",
 #endif
                              , "transfers", "exclude", "exit", "errorcode", "graphics",
                              "cancel", "confirmcancel", "cat", "tree", "psa", "proxy"
-                             , "mediainfo"
+                             , "mediainfo", "findduplication"
 #ifdef HAVE_LIBUV
                              , "webdav", "ftp"
 #endif

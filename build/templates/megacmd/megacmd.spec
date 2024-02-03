@@ -500,6 +500,7 @@ killall -s SIGUSR2 mega-cmd-server 2> /dev/null || true
 %{_bindir}/mega-cancel
 %{_bindir}/mega-confirmcancel
 %{_bindir}/mega-errorcode
+%{_bindir}/mega-findduplication
 %{_bindir}/mega-cmd
 %{_bindir}/mega-cmd-server
 %{_sysconfdir}/bash_completion.d/megacmd_completion.sh

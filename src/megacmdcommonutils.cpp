@@ -49,6 +49,7 @@ std::ostringstream & operator<< ( std::ostringstream & ostr, const std::wstring 
 }
 #endif
 
+
 namespace megacmd {
 using namespace std;
 

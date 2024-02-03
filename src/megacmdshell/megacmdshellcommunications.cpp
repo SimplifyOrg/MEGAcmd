@@ -660,7 +660,7 @@ int MegaCmdShellCommunications::executeCommand(string command, std::string (*rea
             }
             else
             {
-                std::cerr << "Error reading size of partial output: " << ERRNO << std::endl;
+                std::cerr << "Error reading size of partial output: " << ERRNO << " " << n << " " << partialoutsize <<std::endl;
                 return -1;
             }
         }

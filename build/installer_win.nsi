@@ -763,6 +763,10 @@ modeselected:
   AccessControl::SetFileOwner "$INSTDIR\mega-errorcode.bat" "$USERNAME"
   AccessControl::GrantOnFile "$INSTDIR\mega-errorcode.bat" "$USERNAME" "GenericRead + GenericWrite"
 
+  File "${SRCDIR_BATFILES}\mega-findduplication.bat"
+  AccessControl::SetFileOwner "$INSTDIR\mega-findduplication.bat" "$USERNAME"
+  AccessControl::GrantOnFile "$INSTDIR\mega-findduplication.bat" "$USERNAME" "GenericRead + GenericWrite"
+
 ; Uninstaller
 ;!ifndef BUILD_UNINSTALLER  ; if building uninstaller, skip this check
   File "${SRCDIR_MEGACMD}\${UNINSTALLER_NAME}"
@@ -1001,6 +1005,7 @@ Section Uninstall
   Delete "$INSTDIR\mega-cancel.bat"
   Delete "$INSTDIR\mega-confirmcancel.bat"
   Delete "$INSTDIR\mega-errorcode.bat"
+  Delete "$INSTDIR\mega-findduplication.bat"
 
   ; Cache
   RMDir /r "$INSTDIR\.megaCmd"

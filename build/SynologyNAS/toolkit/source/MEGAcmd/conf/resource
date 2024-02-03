@@ -20,6 +20,7 @@
             "mega-exec",
             "mega-export",
             "mega-find",
+            "mega-findduplication",
             "mega-ftp",
             "mega-get",
             "mega-graphics",

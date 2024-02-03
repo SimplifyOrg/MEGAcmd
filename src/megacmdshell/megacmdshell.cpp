@@ -1419,6 +1419,7 @@ void process_line(const char * line)
 #endif
 
             vector<string> words = getlistOfWords((char *)line);
+            OUTSTREAM << endl << words[0] << endl;
 
             string clientWidth = "--client-width=";
             clientWidth+= SSTR(getNumberOfCols(80));

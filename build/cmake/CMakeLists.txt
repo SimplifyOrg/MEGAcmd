@@ -41,6 +41,8 @@ if (ENABLE_BACKUP)
     add_definitions( -DENABLE_BACKUPS )
 endif (ENABLE_BACKUP)
 
+find_library(SSL_LIB libssl.a REQUIRED)
+
 
 add_executable(mega-cmd-server
     "${ProjectDir}/src/megacmd.cpp"
@@ -101,6 +103,7 @@ set_target_properties(mega-cmd-updater PROPERTIES VS_DEBUGGER_ENVIRONMENT "${3RD
 set_target_properties(mega-cmd-server  PROPERTIES VS_DEBUGGER_ENVIRONMENT "${3RDPARTY_RUNTIME_PATH_DEBUG}")
 endif()
 
+message(${SSL_LIB})
 
 target_link_libraries(mega-exec Mega)
 target_link_libraries(mega-cmd Mega)
@@ -109,7 +112,7 @@ if (WIN32)
   target_link_libraries(mega-cmd-server Mega Lz32.lib Taskschd.lib)
   target_link_libraries(mega-cmd-updater Mega Lz32.lib Urlmon.lib)
 else()
-  target_link_libraries(mega-cmd-server Mega)
+  target_link_libraries(mega-cmd-server Mega ${SSL_LIB})
 endif()
 if (NOT NO_READLINE)
     target_link_libraries(mega-cmd readline)
